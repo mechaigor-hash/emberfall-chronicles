@@ -39,3 +39,25 @@ def test_simulation_does_not_crash():
     state = simulate(seed=5, steps=200)
     assert state.player.stats.hp >= 0
     assert state.won or state.player.alive or not state.player.alive
+
+
+def test_monsters_stalk_nearby_player_after_a_turn():
+    state = new_game(seed=3, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    state.treasures.clear()
+    state.shrines.clear()
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    monster.position.x = 8
+    monster.position.y = 5
+    expected_player_position = state.player.position.moved(Direction.WEST)
+    before = abs(monster.position.x - expected_player_position.x) + abs(monster.position.y - expected_player_position.y)
+
+    move(state, Direction.WEST)
+
+    after = abs(monster.position.x - state.player.position.x) + abs(monster.position.y - state.player.position.y)
+    assert after < before
+    assert monster.position.x == 7
+    assert "stalks closer" in state.log[-1]

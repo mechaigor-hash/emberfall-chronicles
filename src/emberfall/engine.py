@@ -197,6 +197,31 @@ def _monsters_act(state: GameState) -> None:
             if not state.player.alive:
                 state.log.append("Your lantern gutters out. The dungeon claims another hero.")
                 return
+            continue
+        if _monster_can_smell_player(monster, state):
+            _stalk_player(monster, state)
+
+
+def _monster_can_smell_player(monster: Entity, state: GameState, radius: int = 6) -> bool:
+    distance = abs(monster.position.x - state.player.position.x) + abs(monster.position.y - state.player.position.y)
+    return distance <= radius
+
+
+def _stalk_player(monster: Entity, state: GameState) -> None:
+    best = monster.position
+    best_distance = abs(monster.position.x - state.player.position.x) + abs(monster.position.y - state.player.position.y)
+    occupied = {(item.position.x, item.position.y) for item in state.monsters if item.alive and item is not monster}
+    for direction in Direction:
+        candidate = monster.position.moved(direction)
+        key = (candidate.x, candidate.y)
+        distance = abs(candidate.x - state.player.position.x) + abs(candidate.y - state.player.position.y)
+        if key in occupied or candidate == state.player.position or _is_wall(state, candidate) or distance >= best_distance:
+            continue
+        best = candidate
+        best_distance = distance
+    if best != monster.position:
+        monster.position = best
+        state.log.append(f"The {monster.name} stalks closer through the gloom.")
 
 
 def _collect_at_player(state: GameState) -> None:
