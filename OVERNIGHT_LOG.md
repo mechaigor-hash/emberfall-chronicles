@@ -19,6 +19,19 @@ This file is for autonomous iteration notes before the 08:00 UK check-in.
 - Pytest coverage for core engine behavior
 - GitHub Actions CI
 
+## 2026-06-01 23:28 BST — relic stat effects
+
+Changed:
+- Treasure relics now apply deterministic mechanical effects when collected instead of only adding names to inventory.
+- Added five item effect messages covering defense, attack, max HP, healing, and hybrid boosts.
+- Added regression coverage proving treasure pickup changes player stats and records the relic effect in the log.
+- Updated README gameplay notes to explain that relics grant stat boons.
+
+Verification:
+- `uv run pytest` → 7 passed in 0.07s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall simulate --seed 11 --steps 40` → command rendered a delve successfully; outcome was "still delving".
+
 ## 2026-06-01 22:55 BST — stalking monster AI
 
 Changed:

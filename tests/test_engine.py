@@ -41,6 +41,33 @@ def test_simulation_does_not_crash():
     assert state.won or state.player.alive or not state.player.alive
 
 
+def test_treasure_relics_grant_a_mechanical_effect():
+    state = new_game(seed=11, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    state.monsters.clear()
+    state.shrines.clear()
+    state.treasures = [state.player.position.moved(Direction.EAST)]
+    state.player.stats.hp = 10
+    before = (
+        state.player.stats.hp,
+        state.player.stats.max_hp,
+        state.player.stats.attack,
+        state.player.stats.defense,
+    )
+
+    move(state, Direction.EAST)
+
+    after = (
+        state.player.stats.hp,
+        state.player.stats.max_hp,
+        state.player.stats.attack,
+        state.player.stats.defense,
+    )
+    assert state.player.inventory[-1] in state.log[-1]
+    assert "+" in state.log[-1]
+    assert after != before
+
+
 def test_monsters_stalk_nearby_player_after_a_turn():
     state = new_game(seed=3, width=11, height=11)
     state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]

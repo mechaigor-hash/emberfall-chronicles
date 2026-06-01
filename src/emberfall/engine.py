@@ -10,6 +10,13 @@ from emberfall.models import Direction, Entity, GameState, Position, Stats, Tile
 
 MONSTER_NAMES = ["ash goblin", "bone imp", "mire kobold", "cinder wraith", "rust knight"]
 LOOT = ["Moonlit Key", "Ember Ring", "Tin Crown", "Oaken Charm", "Starfall Shard"]
+LOOT_EFFECTS = {
+    "Moonlit Key": "The key hums, revealing safer paths. +1 defense.",
+    "Ember Ring": "The ring flares around your blade. +1 attack.",
+    "Tin Crown": "The crown steadies your thoughts. +2 max HP.",
+    "Oaken Charm": "The charm knits your wounds. +4 HP.",
+    "Starfall Shard": "The shard burns like a tiny comet. +1 attack, +1 defense.",
+}
 
 
 class GameError(RuntimeError):
@@ -232,12 +239,30 @@ def _collect_at_player(state: GameState) -> None:
             item = random.Random(state.seed + pos.x * 31 + pos.y).choice(LOOT)
             state.player.inventory.append(item)
             state.player.gold += 10
-            state.log.append(f"You find {item} and 10 gold.")
+            effect = _apply_loot_effect(state, item)
+            state.log.append(f"You find {item} and 10 gold. {effect}")
     for shrine in list(state.shrines):
         if shrine == pos:
             state.shrines.remove(shrine)
             state.player.stats.hp = state.player.stats.max_hp
             state.log.append("A shrine of old pixels restores your health.")
+
+
+def _apply_loot_effect(state: GameState, item: str) -> str:
+    stats = state.player.stats
+    if item == "Moonlit Key":
+        stats.defense += 1
+    elif item == "Ember Ring":
+        stats.attack += 1
+    elif item == "Tin Crown":
+        stats.max_hp += 2
+        stats.hp += 2
+    elif item == "Oaken Charm":
+        stats.hp = min(stats.max_hp, stats.hp + 4)
+    elif item == "Starfall Shard":
+        stats.attack += 1
+        stats.defense += 1
+    return LOOT_EFFECTS[item]
 
 
 def _maybe_level_up(state: GameState) -> None:

@@ -16,7 +16,7 @@ No mandatory runtime dependencies: the game engine is standard-library Python.
 
 ## Gameplay
 
-You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous.
+You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health.
 
 Legend:
 
