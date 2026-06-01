@@ -8,6 +8,7 @@ A Python-based retro fantasy RPG: tiny ASCII dungeons, turn-based combat, stalki
 uv venv
 uv pip install -e . pytest ruff
 uv run emberfall new --seed 42
+uv run emberfall status
 uv run emberfall move east
 uv run emberfall simulate --seed 7 --steps 120
 ```
@@ -35,6 +36,7 @@ Legend:
 ```bash
 emberfall new --seed 123 --save saves/run.json
 emberfall show saves/run.json
+emberfall status saves/run.json
 emberfall move north saves/run.json
 emberfall move south saves/run.json
 emberfall move east saves/run.json

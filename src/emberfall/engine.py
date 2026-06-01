@@ -119,6 +119,25 @@ def render(state: GameState, reveal_all: bool = True) -> str:
     return header + "\n" + "\n".join("".join(row) for row in grid) + "\n" + "\n".join(state.log[-5:])
 
 
+def hero_sheet(state: GameState) -> str:
+    """Return a compact character sheet for CLI status checks."""
+    stats = state.player.stats
+    inventory = ", ".join(state.player.inventory) if state.player.inventory else "empty pack"
+    lines = [
+        f"{state.player.name} — level {state.player.level}",
+        f"HP {stats.hp}/{stats.max_hp} | ATK {stats.attack} | DEF {stats.defense}",
+        f"Gold {state.player.gold} | XP {state.player.xp}/{state.player.level * 12}",
+        f"Inventory: {inventory}",
+    ]
+    if state.won:
+        lines.append("Status: victorious beyond the ember gate")
+    elif not state.player.alive:
+        lines.append("Status: fallen beneath Emberfall Keep")
+    else:
+        lines.append("Status: still delving")
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

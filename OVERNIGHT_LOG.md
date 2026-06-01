@@ -19,6 +19,19 @@ This file is for autonomous iteration notes before the 08:00 UK check-in.
 - Pytest coverage for core engine behavior
 - GitHub Actions CI
 
+## 2026-06-01 23:59 BST — hero status command
+
+Changed:
+- Added a `hero_sheet` engine helper that summarizes Kalidor's level, HP, attack, defense, gold, XP progress, inventory, and adventure status.
+- Added a new `emberfall status [save]` CLI command for checking a save file without rendering the full map.
+- Added regression coverage for the hero sheet output and documented the new command in the README.
+
+Verification:
+- `uv run pytest` → 8 passed in 0.07s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 23 --save /tmp/emberfall-status-cron.json` → created and rendered a deterministic save successfully.
+- `uv run emberfall status /tmp/emberfall-status-cron.json` → printed level 1 Kalidor with 24/24 HP, Weathered Blade, and "still delving" status.
+
 ## 2026-06-01 23:28 BST — relic stat effects
 
 Changed:

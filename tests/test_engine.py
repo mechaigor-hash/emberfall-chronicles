@@ -1,4 +1,4 @@
-from emberfall.engine import load, move, new_game, render, save, simulate
+from emberfall.engine import hero_sheet, load, move, new_game, render, save, simulate
 from emberfall.models import Direction
 
 
@@ -16,6 +16,20 @@ def test_render_contains_retro_glyphs():
     assert "@" in screen
     assert "#" in screen
     assert "Emberfall Depth" in screen
+
+
+def test_hero_sheet_summarizes_stats_and_inventory():
+    state = new_game(seed=12)
+    state.player.gold = 17
+    state.player.xp = 5
+
+    sheet = hero_sheet(state)
+
+    assert "Kalidor — level 1" in sheet
+    assert "HP 24/24 | ATK 6 | DEF 2" in sheet
+    assert "Gold 17 | XP 5/12" in sheet
+    assert "Weathered Blade" in sheet
+    assert "still delving" in sheet
 
 
 def test_move_into_wall_logs_message():
