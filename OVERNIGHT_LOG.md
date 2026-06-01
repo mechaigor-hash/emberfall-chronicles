@@ -57,3 +57,16 @@ Verification:
 - `uv run pytest` → 6 passed in 0.06s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall simulate --seed 11 --steps 20` → command rendered a delve successfully; outcome was "still delving".
+
+## 2026-06-02 00:32 BST — safe rest command
+
+Changed:
+- Added an engine-level `rest` action that spends a turn and restores up to 2 HP when no living monster is within two tiles.
+- Nearby monsters now interrupt resting, preserving danger and still taking their normal turn.
+- Added a new `emberfall rest [save]` CLI command and documented it in the README command list and gameplay notes.
+- Added regression coverage for both successful resting and monster-interrupted resting.
+
+Verification:
+- `uv run pytest` → 10 passed in 0.07s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 31 --save /tmp/emberfall-rest-cron.json && uv run emberfall rest /tmp/emberfall-rest-cron.json` → created a deterministic save, ran the new rest command, rendered the game, and logged "Kalidor listens to the dungeon's old static." for a full-health safe rest.

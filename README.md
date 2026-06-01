@@ -17,7 +17,7 @@ No mandatory runtime dependencies: the game engine is standard-library Python.
 
 ## Gameplay
 
-You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health.
+You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health. When the corridors are quiet, the `rest` command lets Kalidor spend a turn recovering a little HP, but nearby monsters interrupt the respite.
 
 Legend:
 
@@ -41,6 +41,7 @@ emberfall move north saves/run.json
 emberfall move south saves/run.json
 emberfall move east saves/run.json
 emberfall move west saves/run.json
+emberfall rest saves/run.json
 emberfall simulate --seed 123 --steps 80
 ```
 

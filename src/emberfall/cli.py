@@ -4,7 +4,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from emberfall.engine import hero_sheet, load, move, new_game, render, save, simulate
+from emberfall.engine import hero_sheet, load, move, new_game, render, rest, save, simulate
 from emberfall.models import Direction
 
 BANNER = r"""
@@ -36,6 +36,9 @@ def build_parser() -> argparse.ArgumentParser:
     step.add_argument("direction", choices=[item.value for item in Direction])
     step.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
+    wait = sub.add_parser("rest", help="spend a turn recovering a little HP when safe")
+    wait.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
     auto = sub.add_parser("simulate", help="run an automated delve")
     auto.add_argument("--seed", type=int, default=1)
     auto.add_argument("--steps", type=int, default=80)
@@ -61,6 +64,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "move":
         state = load(args.save)
         move(state, Direction(args.direction))
+        save(state, args.save)
+        print(render(state))
+        return 0
+    if args.command == "rest":
+        state = load(args.save)
+        rest(state)
         save(state, args.save)
         print(render(state))
         return 0

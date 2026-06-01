@@ -102,6 +102,22 @@ def move(state: GameState, direction: Direction | str) -> GameState:
     return state
 
 
+def rest(state: GameState) -> GameState:
+    """Spend a turn catching breath, with nearby monsters making it unsafe."""
+    if not state.player.alive or state.won:
+        return state
+    if _danger_nearby(state):
+        state.log.append("No time to rest: something scrapes close by.")
+    elif state.player.stats.hp < state.player.stats.max_hp:
+        recovered = min(2, state.player.stats.max_hp - state.player.stats.hp)
+        state.player.stats.hp += recovered
+        state.log.append(f"Kalidor catches his breath and recovers {recovered} HP.")
+    else:
+        state.log.append("Kalidor listens to the dungeon's old static.")
+    _monsters_act(state)
+    return state
+
+
 def render(state: GameState, reveal_all: bool = True) -> str:
     grid = [list(row) for row in state.tiles]
     for treasure in state.treasures:
@@ -165,6 +181,16 @@ def simulate(seed: int = 1, steps: int = 60) -> GameState:
 
 def monster_at(state: GameState, position: Position) -> Entity | None:
     return next((m for m in state.monsters if m.alive and m.position == position), None)
+
+
+def _danger_nearby(state: GameState, radius: int = 2) -> bool:
+    return any(
+        abs(monster.position.x - state.player.position.x)
+        + abs(monster.position.y - state.player.position.y)
+        <= radius
+        for monster in state.monsters
+        if monster.alive
+    )
 
 
 def _generate_map(rng: random.Random, width: int, height: int) -> list[str]:

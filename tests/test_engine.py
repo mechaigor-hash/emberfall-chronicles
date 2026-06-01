@@ -1,4 +1,4 @@
-from emberfall.engine import hero_sheet, load, move, new_game, render, save, simulate
+from emberfall.engine import hero_sheet, load, move, new_game, render, rest, save, simulate
 from emberfall.models import Direction
 
 
@@ -102,3 +102,32 @@ def test_monsters_stalk_nearby_player_after_a_turn():
     assert after < before
     assert monster.position.x == 7
     assert "stalks closer" in state.log[-1]
+
+
+def test_rest_recovers_hp_when_no_monster_is_close():
+    state = new_game(seed=18, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    state.monsters.clear()
+    state.player.stats.hp = 20
+
+    rest(state)
+
+    assert state.player.stats.hp == 22
+    assert "recovers 2 HP" in state.log[-1]
+
+
+def test_rest_is_interrupted_by_nearby_monsters():
+    state = new_game(seed=19, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    state.player.stats.hp = 20
+    monster.position.x = 6
+    monster.position.y = 5
+
+    rest(state)
+
+    assert state.player.stats.hp < 20
+    assert "No time to rest" in state.log[-2]
