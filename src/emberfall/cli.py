@@ -1,0 +1,71 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from emberfall.engine import load, move, new_game, render, save, simulate
+from emberfall.models import Direction
+
+BANNER = r"""
+  _____           _              __      _ _ 
+ | ____|_ __ ___ | |__   ___ _ _/ _|__ _| | |
+ |  _| | '_ ` _ \| '_ \ / _ \ '__| |_/ _` | | |
+ | |___| | | | | | |_) |  __/ |  |  _ (_| | | |
+ |_____|_| |_| |_|_.__/ \___|_|  |_| \__,_|_|_|
+""".strip("\n")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Emberfall Chronicles retro fantasy RPG")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    new = sub.add_parser("new", help="start a new dungeon")
+    new.add_argument("--seed", type=int, default=None)
+    new.add_argument("--save", type=Path, default=Path("saves/emberfall.json"))
+    new.add_argument("--width", type=int, default=31)
+    new.add_argument("--height", type=int, default=17)
+
+    show = sub.add_parser("show", help="render a saved game")
+    show.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
+    step = sub.add_parser("move", help="move north/south/east/west in a saved game")
+    step.add_argument("direction", choices=[item.value for item in Direction])
+    step.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
+    auto = sub.add_parser("simulate", help="run an automated delve")
+    auto.add_argument("--seed", type=int, default=1)
+    auto.add_argument("--steps", type=int, default=80)
+
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    if args.command == "new":
+        state = new_game(seed=args.seed, width=args.width, height=args.height)
+        save(state, args.save)
+        print(BANNER)
+        print(render(state))
+        print(f"\nSaved to {args.save}")
+        return 0
+    if args.command == "show":
+        print(render(load(args.save)))
+        return 0
+    if args.command == "move":
+        state = load(args.save)
+        move(state, Direction(args.direction))
+        save(state, args.save)
+        print(render(state))
+        return 0
+    if args.command == "simulate":
+        state = simulate(seed=args.seed, steps=args.steps)
+        print(BANNER)
+        print(render(state))
+        print("\nOutcome:", "victory" if state.won else "dead" if not state.player.alive else "still delving")
+        return 0
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
