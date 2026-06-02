@@ -1,5 +1,6 @@
 from emberfall.engine import (
     adventure_log,
+    bestiary,
     hero_sheet,
     inventory_report,
     legend,
@@ -177,6 +178,50 @@ def test_legend_explains_glyphs_with_live_counts_without_mutation():
     assert "$ treasure: 2 relic caches remain" in report
     assert "+ shrine: 1 healing shrines remain" in report
     assert "> ember gate: seek it to win" in report
+    assert state.to_dict() == before
+
+
+def test_bestiary_groups_monsters_with_stats_rewards_and_distance_without_mutation():
+    state = new_game(seed=27, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    first = state.monsters[0]
+    second = state.monsters[1]
+    third = state.monsters[2]
+    state.monsters = [first, second, third]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    first.name = "ash goblin"
+    first.position.x = 6
+    first.position.y = 5
+    first.stats.hp = 5
+    first.stats.attack = 3
+    first.stats.defense = 1
+    first.xp = 4
+    first.gold = 2
+    second.name = "ash goblin"
+    second.position.x = 9
+    second.position.y = 5
+    second.stats.hp = 9
+    second.stats.attack = 5
+    second.stats.defense = 2
+    second.xp = 8
+    second.gold = 7
+    third.name = "rust knight"
+    third.position.x = 9
+    third.position.y = 9
+    third.stats.hp = 11
+    third.stats.attack = 6
+    third.stats.defense = 3
+    third.xp = 10
+    third.gold = 4
+    before = state.to_dict()
+
+    report = bestiary(state)
+
+    assert "Emberfall field bestiary" in report
+    assert "ash goblin x2: HP 5-9, ATK 3-5, DEF 1-2, XP 4-8, gold 2-7" in report
+    assert "nearest 1 steps (adjacent and ready to strike)" in report
+    assert "rust knight x1: HP 11, ATK 6, DEF 3, XP 10, gold 4" in report
     assert state.to_dict() == before
 
 

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from emberfall.engine import (
     adventure_log,
+    bestiary,
     hero_sheet,
     inventory_report,
     legend,
@@ -66,6 +67,9 @@ def build_parser() -> argparse.ArgumentParser:
     glyphs = sub.add_parser("legend", help="explain map glyphs and current dungeon counts")
     glyphs.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
+    beasts = sub.add_parser("bestiary", help="summarize living monster types and rewards")
+    beasts.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
     step = sub.add_parser("move", help="move north/south/east/west in a saved game")
     step.add_argument("direction", choices=[item.value for item in Direction])
     step.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -112,6 +116,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "legend":
         print(legend(load(args.save)))
+        return 0
+    if args.command == "bestiary":
+        print(bestiary(load(args.save)))
         return 0
     if args.command == "move":
         state = load(args.save)

@@ -147,3 +147,16 @@ Verification:
 - `uv run pytest` → 16 passed in 0.10s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 94 --save /tmp/emberfall-legend-cron.json && uv run emberfall legend /tmp/emberfall-legend-cron.json` → created a deterministic save and printed the new map legend with 5 monsters, 4 relic caches, 2 shrines, and the ember gate objective.
+
+## 2026-06-02 04:20 BST — field bestiary command
+
+Changed:
+- Added an engine-level `bestiary` helper that groups living monsters by type and summarizes HP, attack, defense, XP, gold, nearest distance, and threat wording without mutating state.
+- Added a new `emberfall bestiary [save]` CLI command for combat planning before choosing a route or rest.
+- Added regression coverage for grouped stat/reward ranges and non-mutation behavior.
+- Documented the bestiary command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 17 passed in 0.10s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 105 --save /tmp/emberfall-bestiary-cron.json && uv run emberfall bestiary /tmp/emberfall-bestiary-cron.json` → created a deterministic save and printed grouped bone imp and rust knight bestiary entries with stat/reward ranges and nearest-distance warnings.

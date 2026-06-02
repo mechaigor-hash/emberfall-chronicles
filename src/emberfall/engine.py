@@ -248,6 +248,31 @@ def legend(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def bestiary(state: GameState) -> str:
+    """Summarize living monster types, combat stats, and rewards."""
+    living = [monster for monster in state.monsters if monster.alive]
+    lines = ["Emberfall field bestiary:"]
+    if not living:
+        lines.append("- No monsters remain to catalogue on this depth.")
+        return "\n".join(lines)
+
+    for name in sorted({monster.name for monster in living}):
+        pack = [monster for monster in living if monster.name == name]
+        hp_values = [monster.stats.hp for monster in pack]
+        attacks = [monster.stats.attack for monster in pack]
+        defenses = [monster.stats.defense for monster in pack]
+        xp_values = [monster.xp for monster in pack]
+        gold_values = [monster.gold for monster in pack]
+        nearest = min(_monster_distance(state, monster) for monster in pack)
+        lines.append(
+            f"- {name} x{len(pack)}: HP {_range_text(hp_values)}, "
+            f"ATK {_range_text(attacks)}, DEF {_range_text(defenses)}, "
+            f"XP {_range_text(xp_values)}, gold {_range_text(gold_values)}, "
+            f"nearest {nearest} steps ({_threat_warning(nearest)})"
+        )
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -327,6 +352,14 @@ def _threat_warning(distance: int) -> str:
     if distance <= 6:
         return "close enough to stalk your scent"
     return "distant for now"
+
+
+def _range_text(values: list[int]) -> str:
+    low = min(values)
+    high = max(values)
+    if low == high:
+        return str(low)
+    return f"{low}-{high}"
 
 
 def _generate_map(rng: random.Random, width: int, height: int) -> list[str]:
