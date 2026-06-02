@@ -194,6 +194,30 @@ def objectives(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def threat_report(state: GameState) -> str:
+    """Summarize nearby monster danger without spending a turn."""
+    living = [monster for monster in state.monsters if monster.alive]
+    lines = ["Kalidor weighs the threats in the torchlight:"]
+    if not living:
+        lines.append("- No living monsters remain on this level.")
+        lines.append("- Rest outlook: safe, if the stones stay quiet.")
+        return "\n".join(lines)
+
+    ranked = sorted(living, key=lambda monster: (_monster_distance(state, monster), monster.name))
+    for monster in ranked[:5]:
+        distance = _monster_distance(state, monster)
+        warning = _threat_warning(distance)
+        lines.append(
+            f"- {monster.name}: {monster.stats.hp}/{monster.stats.max_hp} HP, "
+            f"{distance} steps away — {warning}"
+        )
+    if len(ranked) > 5:
+        lines.append(f"- ...and {len(ranked) - 5} more shapes deeper in the dark.")
+    rest_outlook = "unsafe: something is within earshot" if _danger_nearby(state) else "safe for now"
+    lines.append(f"- Rest outlook: {rest_outlook}.")
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -257,6 +281,22 @@ def _danger_nearby(state: GameState, radius: int = 2) -> bool:
         for monster in state.monsters
         if monster.alive
     )
+
+
+def _monster_distance(state: GameState, monster: Entity) -> int:
+    return abs(monster.position.x - state.player.position.x) + abs(
+        monster.position.y - state.player.position.y
+    )
+
+
+def _threat_warning(distance: int) -> str:
+    if distance == 1:
+        return "adjacent and ready to strike"
+    if distance <= 2:
+        return "too close to rest"
+    if distance <= 6:
+        return "close enough to stalk your scent"
+    return "distant for now"
 
 
 def _generate_map(rng: random.Random, width: int, height: int) -> list[str]:

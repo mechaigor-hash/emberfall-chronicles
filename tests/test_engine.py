@@ -10,6 +10,7 @@ from emberfall.engine import (
     rest,
     save,
     simulate,
+    threat_report,
 )
 from emberfall.models import Direction
 
@@ -114,6 +115,33 @@ def test_objectives_summarize_routes_and_remaining_goals_without_mutation():
     assert "Healing shrines remaining: 0 (none left)" in report
     assert "Monsters alive: 2" in report
     assert "still" not in report
+    assert state.to_dict() == before
+
+
+def test_threat_report_ranks_monsters_and_rest_safety_without_mutation():
+    state = new_game(seed=24, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    state.treasures.clear()
+    state.shrines.clear()
+    close = state.monsters[0]
+    far = state.monsters[1]
+    state.monsters = [far, close]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    close.name = "ash goblin"
+    close.position.x = 6
+    close.position.y = 5
+    far.name = "rust knight"
+    far.position.x = 9
+    far.position.y = 9
+    before = state.to_dict()
+
+    report = threat_report(state)
+
+    assert report.splitlines()[1].startswith("- ash goblin")
+    assert "1 steps away — adjacent and ready to strike" in report
+    assert "rust knight" in report
+    assert "Rest outlook: unsafe" in report
     assert state.to_dict() == before
 
 

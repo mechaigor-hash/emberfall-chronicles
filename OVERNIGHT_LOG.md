@@ -108,3 +108,16 @@ Verification:
 - `uv run pytest` → 13 passed in 0.08s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 61 --save /tmp/emberfall-inventory-cron.json && uv run emberfall inventory /tmp/emberfall-inventory-cron.json` → created a deterministic save and printed Kalidor's 0 gold plus Weathered Blade inventory entry.
+
+## 2026-06-02 02:42 BST — monster threat report
+
+Changed:
+- Added an engine-level `threat_report` helper that ranks living monsters by distance from Kalidor and labels immediate, rest-blocking, stalking, and distant danger bands.
+- Added a new `emberfall threats [save]` CLI command for checking monster danger and rest safety without advancing a turn.
+- Added regression coverage proving the threat report ranks monsters, reports unsafe rest conditions, and does not mutate game state.
+- Documented the threats command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 14 passed in 0.09s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 72 --save /tmp/emberfall-threats-cron.json && uv run emberfall threats /tmp/emberfall-threats-cron.json` → created a deterministic save and printed five ranked monster threats plus "Rest outlook: safe for now.".

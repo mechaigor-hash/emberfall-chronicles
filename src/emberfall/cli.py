@@ -16,6 +16,7 @@ from emberfall.engine import (
     rest,
     save,
     simulate,
+    threat_report,
 )
 from emberfall.models import Direction
 
@@ -52,6 +53,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     goals = sub.add_parser("objectives", help="summarize remaining dungeon goals and routes")
     goals.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
+    threats = sub.add_parser("threats", help="summarize nearby monsters and rest safety")
+    threats.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
     step = sub.add_parser("move", help="move north/south/east/west in a saved game")
     step.add_argument("direction", choices=[item.value for item in Direction])
@@ -90,6 +94,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "objectives":
         print(objectives(load(args.save)))
+        return 0
+    if args.command == "threats":
+        print(threat_report(load(args.save)))
         return 0
     if args.command == "move":
         state = load(args.save)
