@@ -273,6 +273,38 @@ def bestiary(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def route_plan(state: GameState, goal: str = "any") -> str:
+    """Give a shortest safe route toward the requested objective without advancing time."""
+    goal = goal.lower()
+    goals = _route_goals(state, goal)
+    title = goal if goal in {"any", "exit", "treasure", "shrine"} else "unknown"
+    lines = [f"Kalidor plots a route toward {title}:"]
+    if title == "unknown":
+        lines.append("- Unknown goal. Choose any, exit, treasure, or shrine.")
+        return "\n".join(lines)
+    if not goals:
+        lines.append(f"- No {goal} objective remains on this depth.")
+        return "\n".join(lines)
+    if state.player.position in goals:
+        lines.append("- Destination: already here.")
+        return "\n".join(lines)
+
+    path = _path_to_positions(state, goals)
+    if not path:
+        lines.append("- No safe route is currently visible around living monsters.")
+        return "\n".join(lines)
+
+    steps = ", ".join(direction.value for direction in path[:10])
+    if len(path) > 10:
+        steps += f", ... ({len(path) - 10} more)"
+    destination = _route_destination_name(state, _follow_path(state.player.position, path))
+    lines.append(f"- Destination: {destination}")
+    lines.append(f"- Distance: {len(path)} steps")
+    lines.append(f"- First move: {path[0].value}")
+    lines.append(f"- Route: {steps}")
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -360,6 +392,38 @@ def _range_text(values: list[int]) -> str:
     if low == high:
         return str(low)
     return f"{low}-{high}"
+
+
+def _route_goals(state: GameState, goal: str) -> list[Position]:
+    exits = [
+        Position(x, y) for y, row in enumerate(state.tiles) for x, ch in enumerate(row) if ch == Tile.EXIT
+    ]
+    if goal == "any":
+        return [*state.treasures, *state.shrines, *exits]
+    if goal == "exit":
+        return exits
+    if goal == "treasure":
+        return list(state.treasures)
+    if goal == "shrine":
+        return list(state.shrines)
+    return []
+
+
+def _follow_path(start: Position, path: list[Direction]) -> Position:
+    position = start
+    for direction in path:
+        position = position.moved(direction)
+    return position
+
+
+def _route_destination_name(state: GameState, position: Position) -> str:
+    if position in state.treasures:
+        return "treasure cache"
+    if position in state.shrines:
+        return "healing shrine"
+    if _tile_at(state, position) == Tile.EXIT:
+        return "ember gate"
+    return "open corridor"
 
 
 def _generate_map(rng: random.Random, width: int, height: int) -> list[str]:

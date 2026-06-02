@@ -17,6 +17,7 @@ from emberfall.engine import (
     objectives,
     render,
     rest,
+    route_plan,
     save,
     simulate,
     threat_report,
@@ -70,6 +71,15 @@ def build_parser() -> argparse.ArgumentParser:
     beasts = sub.add_parser("bestiary", help="summarize living monster types and rewards")
     beasts.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
+    route = sub.add_parser("route", help="plot shortest safe route to an objective")
+    route.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+    route.add_argument(
+        "--goal",
+        choices=["any", "exit", "treasure", "shrine"],
+        default="any",
+        help="objective to route toward",
+    )
+
     step = sub.add_parser("move", help="move north/south/east/west in a saved game")
     step.add_argument("direction", choices=[item.value for item in Direction])
     step.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -119,6 +129,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "bestiary":
         print(bestiary(load(args.save)))
+        return 0
+    if args.command == "route":
+        print(route_plan(load(args.save), goal=args.goal))
         return 0
     if args.command == "move":
         state = load(args.save)

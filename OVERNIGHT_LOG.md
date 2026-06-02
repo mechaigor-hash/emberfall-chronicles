@@ -160,3 +160,16 @@ Verification:
 - `uv run pytest` → 17 passed in 0.10s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 105 --save /tmp/emberfall-bestiary-cron.json && uv run emberfall bestiary /tmp/emberfall-bestiary-cron.json` → created a deterministic save and printed grouped bone imp and rust knight bestiary entries with stat/reward ranges and nearest-distance warnings.
+
+## 2026-06-02 04:53 BST — route planner command
+
+Changed:
+- Added an engine-level `route_plan` helper that prints a concrete shortest safe path without mutating game state.
+- Added a new `emberfall route [save] --goal any|exit|treasure|shrine` CLI command for turn-free navigation planning.
+- Added regression coverage for successful treasure routing and missing-objective reporting.
+- Documented the route command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 19 passed in 0.08s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 42 --save <tmp>/route.json && uv run emberfall route <tmp>/route.json --goal treasure` → created a deterministic save and printed an 18-step route to a treasure cache, first move south.

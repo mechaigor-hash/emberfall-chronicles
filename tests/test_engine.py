@@ -11,6 +11,7 @@ from emberfall.engine import (
     objectives,
     render,
     rest,
+    route_plan,
     save,
     simulate,
     threat_report,
@@ -222,6 +223,42 @@ def test_bestiary_groups_monsters_with_stats_rewards_and_distance_without_mutati
     assert "ash goblin x2: HP 5-9, ATK 3-5, DEF 1-2, XP 4-8, gold 2-7" in report
     assert "nearest 1 steps (adjacent and ready to strike)" in report
     assert "rust knight x1: HP 11, ATK 6, DEF 3, XP 10, gold 4" in report
+    assert state.to_dict() == before
+
+
+def test_route_plan_plots_shortest_safe_path_without_mutation():
+    state = new_game(seed=28, width=11, height=11)
+    state.tiles = [
+        "###########",
+        "#........>#",
+        *["#.........#" for _ in range(8)],
+        "###########",
+    ]
+    state.player.position.x = 1
+    state.player.position.y = 1
+    state.monsters.clear()
+    state.treasures = [state.player.position.moved(Direction.EAST).moved(Direction.EAST)]
+    state.shrines.clear()
+    before = state.to_dict()
+
+    report = route_plan(state, goal="treasure")
+
+    assert "Kalidor plots a route toward treasure" in report
+    assert "Destination: treasure cache" in report
+    assert "Distance: 2 steps" in report
+    assert "First move: east" in report
+    assert "Route: east, east" in report
+    assert state.to_dict() == before
+
+
+def test_route_plan_reports_missing_objective_without_mutation():
+    state = new_game(seed=29)
+    state.shrines.clear()
+    before = state.to_dict()
+
+    report = route_plan(state, goal="shrine")
+
+    assert "No shrine objective remains" in report
     assert state.to_dict() == before
 
 
