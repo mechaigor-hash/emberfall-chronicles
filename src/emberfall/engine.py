@@ -328,6 +328,21 @@ def combat_advice(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def action_report(state: GameState) -> str:
+    """List immediate movement choices with hazards and rewards, without mutating state."""
+    lines = ["Kalidor weighs each nearby step:"]
+    for direction in Direction:
+        target = state.player.position.moved(direction)
+        lines.append(f"- {direction.value}: {_action_description(state, target)}")
+    if state.won:
+        lines.append("- Overall: the ember gate is already open.")
+    elif not state.player.alive:
+        lines.append("- Overall: no choices remain until a new delve begins.")
+    else:
+        lines.append(f"- Suggested: {tactical_hint(state).splitlines()[-1].removeprefix('- ')}")
+    return "\n".join(lines)
+
+
 def tactical_hint(state: GameState) -> str:
     """Recommend one safe next action without mutating the game state."""
     lines = ["Kalidor considers his next move:"]
@@ -474,6 +489,29 @@ def _describe_position(state: GameState, position: Position) -> str:
     if _tile_at(state, position) == Tile.EXIT:
         return "the ember gate"
     return "an open corridor"
+
+
+def _action_description(state: GameState, position: Position) -> str:
+    if _is_wall(state, position):
+        return "blocked by stone; movement would only bruise your shoulder"
+    monster = monster_at(state, position)
+    if monster:
+        player_damage = _damage(state.player, monster)
+        monster_damage = _damage(monster, state.player)
+        hero_swings = _turns_to_defeat(monster.stats.hp, player_damage)
+        enemy_swings = _turns_to_defeat(state.player.stats.hp, monster_damage)
+        outlook = "favorable" if hero_swings <= enemy_swings else "dangerous"
+        return (
+            f"engage the {monster.name}; you hit for {player_damage}, it hits for "
+            f"{monster_damage}, win in {hero_swings} swings ({outlook})"
+        )
+    if position in state.treasures:
+        return "step onto a treasure cache for 10 gold and a relic boon"
+    if position in state.shrines:
+        return "step onto a healing shrine to restore HP"
+    if _tile_at(state, position) == Tile.EXIT:
+        return "enter the ember gate and finish the delve"
+    return "open corridor; safe unless stalking monsters close in after the turn"
 
 
 def _route_summary(state: GameState, goals: list[Position]) -> str:

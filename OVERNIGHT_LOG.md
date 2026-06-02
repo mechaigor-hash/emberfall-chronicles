@@ -212,3 +212,16 @@ Verification:
 - `uv run pytest` → 25 passed in 0.15s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 44 --save /tmp/emberfall-score.json && uv run emberfall score /tmp/emberfall-score.json` → created a deterministic save and printed score 15 with 0 gold, 0 XP, 0 relics, and 5 monsters still hunting.
+
+## 2026-06-02 07:06 BST — immediate choices command
+
+Changed:
+- Added an engine-level `action_report` helper that lists all four immediate moves without mutating game state.
+- The report calls out walls, open corridors, treasure caches, healing shrines, ember-gate exits, and adjacent combat odds where relevant.
+- Added a new `emberfall choices [save]` CLI command and README documentation for quick turn-by-turn decision support.
+- Added regression coverage proving the choices report covers all nearby outcomes and leaves state unchanged.
+
+Verification:
+- `uv run pytest` → 26 passed in 0.15s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 139 --save /tmp/emberfall-choices.json && uv run emberfall choices /tmp/emberfall-choices.json` → created a deterministic save and printed the choices report with north/west blocked, south/east open, and a suggested move toward treasure.

@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from emberfall.engine import (
+    action_report,
     adventure_log,
     bestiary,
     combat_advice,
@@ -80,6 +81,9 @@ def build_parser() -> argparse.ArgumentParser:
     combat = sub.add_parser("combat", help="estimate adjacent fight odds without advancing time")
     combat.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
+    choices = sub.add_parser("choices", help="list immediate movement choices and consequences")
+    choices.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
     hint = sub.add_parser("hint", help="recommend one safe next action without advancing time")
     hint.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
@@ -147,6 +151,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "combat":
         print(combat_advice(load(args.save)))
+        return 0
+    if args.command == "choices":
+        print(action_report(load(args.save)))
         return 0
     if args.command == "hint":
         print(tactical_hint(load(args.save)))

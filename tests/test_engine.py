@@ -1,4 +1,5 @@
 from emberfall.engine import (
+    action_report,
     adventure_log,
     bestiary,
     combat_advice,
@@ -294,6 +295,31 @@ def test_combat_advice_points_to_nearest_threat_when_not_adjacent():
 
     assert "No adjacent enemy. Nearest: rust knight, 4 steps away" in report
     assert "Tactical hint" in report
+    assert state.to_dict() == before
+
+
+def test_action_report_lists_all_immediate_choices_without_mutation():
+    state = new_game(seed=35, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    state.treasures = [state.player.position.moved(Direction.NORTH)]
+    state.shrines = [state.player.position.moved(Direction.SOUTH)]
+    monster.name = "ash goblin"
+    monster.position.x = 6
+    monster.position.y = 5
+    before = state.to_dict()
+
+    report = action_report(state)
+
+    assert "Kalidor weighs each nearby step" in report
+    assert "north: step onto a treasure cache" in report
+    assert "south: step onto a healing shrine" in report
+    assert "east: engage the ash goblin" in report
+    assert "west: open corridor" in report
+    assert "Suggested: Recommended action:" in report
     assert state.to_dict() == before
 
 
