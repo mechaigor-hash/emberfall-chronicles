@@ -238,3 +238,16 @@ Verification:
 - `uv run pytest` → 27 passed in 0.15s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 44 --save /tmp/emberfall-fog-cron.json && uv run emberfall show /tmp/emberfall-fog-cron.json --fog` → created a deterministic save and rendered only the torchlit north-west section around Kalidor, hiding the distant ember gate.
+
+## 2026-06-02 08:12 BST — monster route target
+
+Changed:
+- Extended `route_plan` and the `emberfall route` CLI so `--goal monster` plots a path to the nearest living monster for deliberate combat planning.
+- Updated route destination naming so monster routes report the specific target, and pathfinding can end on a monster tile while still treating other monsters as blockers.
+- Added regression coverage proving monster routing chooses the nearest target and does not mutate state.
+- Documented the new route goal in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 28 passed in 0.17s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 77 --save /tmp/emberfall-monster-route-cron.json && uv run emberfall route /tmp/emberfall-monster-route-cron.json --goal monster` → created a deterministic save and printed a monster route to a cinder wraith 13 steps away, first move south.

@@ -447,6 +447,34 @@ def test_route_plan_reports_missing_objective_without_mutation():
     assert state.to_dict() == before
 
 
+def test_route_plan_can_target_nearest_monster_without_mutation():
+    state = new_game(seed=30, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    close = state.monsters[0]
+    far = state.monsters[1]
+    state.monsters = [far, close]
+    state.player.position.x = 1
+    state.player.position.y = 1
+    close.name = "ash goblin"
+    close.position.x = 4
+    close.position.y = 1
+    far.name = "rust knight"
+    far.position.x = 9
+    far.position.y = 9
+    state.treasures.clear()
+    state.shrines.clear()
+    before = state.to_dict()
+
+    report = route_plan(state, goal="monster")
+
+    assert "Kalidor plots a route toward monster" in report
+    assert "Destination: ash goblin" in report
+    assert "Distance: 3 steps" in report
+    assert "First move: east" in report
+    assert "Route: east, east, east" in report
+    assert state.to_dict() == before
+
+
 def test_save_load_roundtrip(tmp_path):
     state = new_game(seed=99)
     path = tmp_path / "save.json"

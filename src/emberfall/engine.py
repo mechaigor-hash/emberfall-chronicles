@@ -419,10 +419,10 @@ def route_plan(state: GameState, goal: str = "any") -> str:
     """Give a shortest safe route toward the requested objective without advancing time."""
     goal = goal.lower()
     goals = _route_goals(state, goal)
-    title = goal if goal in {"any", "exit", "treasure", "shrine"} else "unknown"
+    title = goal if goal in {"any", "exit", "treasure", "shrine", "monster"} else "unknown"
     lines = [f"Kalidor plots a route toward {title}:"]
     if title == "unknown":
-        lines.append("- Unknown goal. Choose any, exit, treasure, or shrine.")
+        lines.append("- Unknown goal. Choose any, exit, treasure, shrine, or monster.")
         return "\n".join(lines)
     if not goals:
         lines.append(f"- No {goal} objective remains on this depth.")
@@ -591,6 +591,8 @@ def _route_goals(state: GameState, goal: str) -> list[Position]:
         return list(state.treasures)
     if goal == "shrine":
         return list(state.shrines)
+    if goal == "monster":
+        return [monster.position for monster in state.monsters if monster.alive]
     return []
 
 
@@ -608,6 +610,9 @@ def _follow_path(start: Position, path: list[Direction]) -> Position:
 
 
 def _route_destination_name(state: GameState, position: Position) -> str:
+    monster = monster_at(state, position)
+    if monster:
+        return monster.name
     if position in state.treasures:
         return "treasure cache"
     if position in state.shrines:
@@ -776,7 +781,7 @@ def _path_to_positions(state: GameState, goals: list[Position]) -> list[Directio
         for direction in Direction:
             nxt = pos.moved(direction)
             key = (nxt.x, nxt.y)
-            if key in seen or _is_wall(state, nxt) or monster_at(state, nxt):
+            if key in seen or _is_wall(state, nxt) or (monster_at(state, nxt) and nxt not in goals):
                 continue
             seen.add(key)
             queue.append((nxt, [*path, direction]))

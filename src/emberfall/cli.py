@@ -96,7 +96,7 @@ def build_parser() -> argparse.ArgumentParser:
     route.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
     route.add_argument(
         "--goal",
-        choices=["any", "exit", "treasure", "shrine"],
+        choices=["any", "exit", "treasure", "shrine", "monster"],
         default="any",
         help="objective to route toward",
     )
