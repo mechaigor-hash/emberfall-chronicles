@@ -225,3 +225,16 @@ Verification:
 - `uv run pytest` → 26 passed in 0.15s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 139 --save /tmp/emberfall-choices.json && uv run emberfall choices /tmp/emberfall-choices.json` → created a deterministic save and printed the choices report with north/west blocked, south/east open, and a suggested move toward treasure.
+
+## 2026-06-02 07:38 BST — torch-fog map view
+
+Changed:
+- Added a `--fog` option to `emberfall show` so saved games can be rendered through Kalidor's limited torchlight instead of always revealing the full dungeon.
+- Reused the engine's existing fog renderer for CLI play, preserving the normal full-map `show` behavior by default.
+- Added regression coverage proving fog rendering keeps nearby tiles visible while hiding distant exits.
+- Documented the fog view in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 27 passed in 0.15s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 44 --save /tmp/emberfall-fog-cron.json && uv run emberfall show /tmp/emberfall-fog-cron.json --fog` → created a deterministic save and rendered only the torchlit north-west section around Kalidor, hiding the distant ember gate.

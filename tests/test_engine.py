@@ -39,6 +39,36 @@ def test_render_contains_retro_glyphs():
     assert "Emberfall Depth" in screen
 
 
+def test_render_can_hide_distant_tiles_with_torch_fog():
+    state = new_game(seed=8, width=15, height=11)
+    state.tiles = [
+        "###############",
+        "#.............#",
+        "#.............#",
+        "#.............#",
+        "#.............#",
+        "#.............#",
+        "#.............#",
+        "#.............#",
+        "#.............#",
+        "#............>#",
+        "###############",
+    ]
+    state.player.position.x = 1
+    state.player.position.y = 1
+    state.monsters.clear()
+    state.treasures.clear()
+    state.shrines.clear()
+
+    screen = render(state, reveal_all=False)
+
+    map_lines = screen.splitlines()[1:]
+    assert map_lines[1][1] == "@"
+    assert map_lines[1][2] == "."
+    assert map_lines[9][13] == " "
+    assert ">" not in "\n".join(map_lines)
+
+
 def test_hero_sheet_summarizes_stats_and_inventory():
     state = new_game(seed=12)
     state.player.gold = 17

@@ -49,6 +49,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     show = sub.add_parser("show", help="render a saved game")
     show.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+    show.add_argument(
+        "--fog",
+        action="store_true",
+        help="render only Kalidor's nearby torchlight instead of the full map",
+    )
 
     status = sub.add_parser("status", help="show hero stats and inventory for a saved game")
     status.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -120,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nSaved to {args.save}")
         return 0
     if args.command == "show":
-        print(render(load(args.save)))
+        print(render(load(args.save), reveal_all=not args.fog))
         return 0
     if args.command == "status":
         print(hero_sheet(load(args.save)))
