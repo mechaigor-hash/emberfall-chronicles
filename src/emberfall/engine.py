@@ -232,6 +232,22 @@ def adventure_log(state: GameState, limit: int = 8) -> str:
     return "\n".join(lines)
 
 
+def legend(state: GameState) -> str:
+    """Explain map glyphs with current dungeon counts for quick orientation."""
+    living_monsters = sum(1 for monster in state.monsters if monster.alive)
+    lines = [
+        "Emberfall map legend:",
+        f"- {Tile.PLAYER.value} Kalidor: level {state.player.level}, {state.player.stats.hp}/{state.player.stats.max_hp} HP",
+        f"- {Tile.WALL.value} stone wall: blocks movement and line of flight",
+        f"- {Tile.FLOOR.value} corridor floor: safe to step onto unless stalked",
+        f"- {Tile.MONSTER.value} monster: {living_monsters} alive on this depth",
+        f"- {Tile.TREASURE.value} treasure: {len(state.treasures)} relic caches remain",
+        f"- {Tile.SHRINE.value} shrine: {len(state.shrines)} healing shrines remain",
+        f"- {Tile.EXIT.value} ember gate: {'opened' if state.won else 'seek it to win'}",
+    ]
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

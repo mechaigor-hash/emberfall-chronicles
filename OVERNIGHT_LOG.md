@@ -134,3 +134,16 @@ Verification:
 - `uv run pytest` → 15 passed in 0.10s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 83 --save /tmp/emberfall-log-cron.json && uv run emberfall move east /tmp/emberfall-log-cron.json && uv run emberfall log /tmp/emberfall-log-cron.json --limit 3` → created a deterministic save, advanced one turn, and printed a two-entry numbered journal ending with a monster stalking message.
+
+## 2026-06-02 03:48 BST — map legend command
+
+Changed:
+- Added an engine-level `legend` helper that explains each ASCII map glyph while including live hero HP, monster, treasure, shrine, and ember-gate status counts.
+- Added a new `emberfall legend [save]` CLI command for quick map orientation without advancing turns or mutating saves.
+- Added regression coverage proving the legend output reports live counts and leaves game state unchanged.
+- Documented the legend command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 16 passed in 0.10s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 94 --save /tmp/emberfall-legend-cron.json && uv run emberfall legend /tmp/emberfall-legend-cron.json` → created a deterministic save and printed the new map legend with 5 monsters, 4 relic caches, 2 shrines, and the ember gate objective.

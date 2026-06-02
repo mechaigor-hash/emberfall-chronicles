@@ -2,6 +2,7 @@ from emberfall.engine import (
     adventure_log,
     hero_sheet,
     inventory_report,
+    legend,
     load,
     look,
     move,
@@ -157,6 +158,25 @@ def test_adventure_log_limits_numbers_and_does_not_mutate_state():
     assert "3. Boots splash in ash." in report
     assert "4. A goblin curses." in report
     assert "A door creaks" not in report
+    assert state.to_dict() == before
+
+
+def test_legend_explains_glyphs_with_live_counts_without_mutation():
+    state = new_game(seed=26)
+    state.monsters = state.monsters[:3]
+    state.treasures = state.treasures[:2]
+    state.shrines = state.shrines[:1]
+    before = state.to_dict()
+
+    report = legend(state)
+
+    assert "@ Kalidor: level 1, 24/24 HP" in report
+    assert "# stone wall" in report
+    assert ". corridor floor" in report
+    assert "M monster: 3 alive" in report
+    assert "$ treasure: 2 relic caches remain" in report
+    assert "+ shrine: 1 healing shrines remain" in report
+    assert "> ember gate: seek it to win" in report
     assert state.to_dict() == before
 
 
