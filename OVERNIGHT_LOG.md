@@ -70,3 +70,16 @@ Verification:
 - `uv run pytest` → 10 passed in 0.07s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 31 --save /tmp/emberfall-rest-cron.json && uv run emberfall rest /tmp/emberfall-rest-cron.json` → created a deterministic save, ran the new rest command, rendered the game, and logged "Kalidor listens to the dungeon's old static." for a full-health safe rest.
+
+## 2026-06-02 01:04 BST — adjacent look command
+
+Changed:
+- Added an engine-level `look` helper that describes the four adjacent spaces without mutating game state or advancing monster turns.
+- Added a new `emberfall look [save]` CLI command for safely scouting nearby walls, corridors, monsters, treasure, shrines, and the ember gate.
+- Added regression coverage proving look reports adjacent features and leaves the save state unchanged.
+- Documented the new scouting command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 11 passed in 0.07s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 44 --save /tmp/emberfall-look-cron.json && uv run emberfall look /tmp/emberfall-look-cron.json` → created a deterministic save and printed adjacent-space scouting output: north/west walls and south/east open corridors.

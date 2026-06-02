@@ -154,6 +154,15 @@ def hero_sheet(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def look(state: GameState) -> str:
+    """Describe the four adjacent spaces without spending a turn."""
+    lines = ["Kalidor studies the nearby gloom:"]
+    for direction in Direction:
+        target = state.player.position.moved(direction)
+        lines.append(f"- {direction.value}: {_describe_position(state, target)}")
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -181,6 +190,21 @@ def simulate(seed: int = 1, steps: int = 60) -> GameState:
 
 def monster_at(state: GameState, position: Position) -> Entity | None:
     return next((m for m in state.monsters if m.alive and m.position == position), None)
+
+
+def _describe_position(state: GameState, position: Position) -> str:
+    if _is_wall(state, position):
+        return "a cold stone wall"
+    monster = monster_at(state, position)
+    if monster:
+        return f"the {monster.name}, wounded to {monster.stats.hp}/{monster.stats.max_hp} HP"
+    if position in state.treasures:
+        return "a treasure glint"
+    if position in state.shrines:
+        return "a healing shrine"
+    if _tile_at(state, position) == Tile.EXIT:
+        return "the ember gate"
+    return "an open corridor"
 
 
 def _danger_nearby(state: GameState, radius: int = 2) -> bool:

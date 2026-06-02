@@ -1,4 +1,4 @@
-from emberfall.engine import hero_sheet, load, move, new_game, render, rest, save, simulate
+from emberfall.engine import hero_sheet, load, look, move, new_game, render, rest, save, simulate
 from emberfall.models import Direction
 
 
@@ -39,6 +39,29 @@ def test_move_into_wall_logs_message():
     move(state, Direction.WEST)
     assert state.player.position.x == 1
     assert "wall" in state.log[-1]
+
+
+def test_look_describes_adjacent_features_without_spending_a_turn():
+    state = new_game(seed=21, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    monster.position.x = 6
+    monster.position.y = 5
+    state.treasures = [state.player.position.moved(Direction.NORTH)]
+    state.shrines = [state.player.position.moved(Direction.SOUTH)]
+    before = state.to_dict()
+
+    report = look(state)
+
+    assert "north: a treasure glint" in report
+    assert "south: a healing shrine" in report
+    assert "east: the" in report
+    assert "wounded to" in report
+    assert "west: an open corridor" in report
+    assert state.to_dict() == before
 
 
 def test_save_load_roundtrip(tmp_path):
