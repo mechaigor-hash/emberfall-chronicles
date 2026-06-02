@@ -96,3 +96,15 @@ Verification:
 - `uv run pytest` → 12 passed in 0.08s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 52 --save /tmp/emberfall-objectives-cron.json && uv run emberfall objectives /tmp/emberfall-objectives-cron.json` → created a deterministic save and printed objective guidance: ember gate 42 steps away, treasures 13 steps away, shrines 14 steps away, and 5 monsters alive.
+
+## 2026-06-02 02:10 BST — inventory command
+
+Changed:
+- Added an engine-level `inventory_report` helper that lists Kalidor's gold, carried gear, and known relic boon text without mutating game state.
+- Added a new `emberfall inventory [save]` CLI command for quick equipment and relic-effect planning.
+- Added regression coverage for the inventory report and documented the command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 13 passed in 0.08s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 61 --save /tmp/emberfall-inventory-cron.json && uv run emberfall inventory /tmp/emberfall-inventory-cron.json` → created a deterministic save and printed Kalidor's 0 gold plus Weathered Blade inventory entry.

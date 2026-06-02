@@ -154,6 +154,18 @@ def hero_sheet(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def inventory_report(state: GameState) -> str:
+    """Describe carried relics and their known boons for quick planning."""
+    lines = [f"Kalidor's pack holds {state.player.gold} gold and:"]
+    if not state.player.inventory:
+        lines.append("- nothing but dungeon dust")
+        return "\n".join(lines)
+    for item in state.player.inventory:
+        effect = LOOT_EFFECTS.get(item, "A dependable companion from better-lit days.")
+        lines.append(f"- {item}: {effect}")
+    return "\n".join(lines)
+
+
 def look(state: GameState) -> str:
     """Describe the four adjacent spaces without spending a turn."""
     lines = ["Kalidor studies the nearby gloom:"]

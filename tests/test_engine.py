@@ -1,4 +1,16 @@
-from emberfall.engine import hero_sheet, load, look, move, new_game, objectives, render, rest, save, simulate
+from emberfall.engine import (
+    hero_sheet,
+    inventory_report,
+    load,
+    look,
+    move,
+    new_game,
+    objectives,
+    render,
+    rest,
+    save,
+    simulate,
+)
 from emberfall.models import Direction
 
 
@@ -30,6 +42,18 @@ def test_hero_sheet_summarizes_stats_and_inventory():
     assert "Gold 17 | XP 5/12" in sheet
     assert "Weathered Blade" in sheet
     assert "still delving" in sheet
+
+
+def test_inventory_report_lists_gold_gear_and_relic_boons():
+    state = new_game(seed=13)
+    state.player.gold = 27
+    state.player.inventory.append("Ember Ring")
+
+    report = inventory_report(state)
+
+    assert "27 gold" in report
+    assert "Weathered Blade: A dependable companion" in report
+    assert "Ember Ring: The ring flares around your blade. +1 attack." in report
 
 
 def test_move_into_wall_logs_message():
