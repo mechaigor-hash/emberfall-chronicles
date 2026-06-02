@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from emberfall.engine import (
+    adventure_log,
     hero_sheet,
     inventory_report,
     load,
@@ -57,6 +58,10 @@ def build_parser() -> argparse.ArgumentParser:
     threats = sub.add_parser("threats", help="summarize nearby monsters and rest safety")
     threats.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
+    journal = sub.add_parser("log", help="show recent adventure log entries without advancing time")
+    journal.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+    journal.add_argument("--limit", type=int, default=8, help="number of recent entries to show")
+
     step = sub.add_parser("move", help="move north/south/east/west in a saved game")
     step.add_argument("direction", choices=[item.value for item in Direction])
     step.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -97,6 +102,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "threats":
         print(threat_report(load(args.save)))
+        return 0
+    if args.command == "log":
+        print(adventure_log(load(args.save), limit=args.limit))
         return 0
     if args.command == "move":
         state = load(args.save)

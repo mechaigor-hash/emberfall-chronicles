@@ -218,6 +218,20 @@ def threat_report(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def adventure_log(state: GameState, limit: int = 8) -> str:
+    """Return recent turn messages as a numbered in-world journal."""
+    limit = max(1, limit)
+    entries = state.log[-limit:]
+    lines = [f"Kalidor's last {len(entries)} journal entries:"]
+    if not entries:
+        lines.append("1. The parchment is still blank.")
+        return "\n".join(lines)
+    start = len(state.log) - len(entries) + 1
+    for offset, entry in enumerate(entries):
+        lines.append(f"{start + offset}. {entry}")
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

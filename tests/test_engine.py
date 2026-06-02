@@ -1,4 +1,5 @@
 from emberfall.engine import (
+    adventure_log,
     hero_sheet,
     inventory_report,
     load,
@@ -142,6 +143,20 @@ def test_threat_report_ranks_monsters_and_rest_safety_without_mutation():
     assert "1 steps away — adjacent and ready to strike" in report
     assert "rust knight" in report
     assert "Rest outlook: unsafe" in report
+    assert state.to_dict() == before
+
+
+def test_adventure_log_limits_numbers_and_does_not_mutate_state():
+    state = new_game(seed=25)
+    state.log.extend(["A door creaks.", "Boots splash in ash.", "A goblin curses."])
+    before = state.to_dict()
+
+    report = adventure_log(state, limit=2)
+
+    assert "Kalidor's last 2 journal entries" in report
+    assert "3. Boots splash in ash." in report
+    assert "4. A goblin curses." in report
+    assert "A door creaks" not in report
     assert state.to_dict() == before
 
 

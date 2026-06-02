@@ -121,3 +121,16 @@ Verification:
 - `uv run pytest` → 14 passed in 0.09s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 72 --save /tmp/emberfall-threats-cron.json && uv run emberfall threats /tmp/emberfall-threats-cron.json` → created a deterministic save and printed five ranked monster threats plus "Rest outlook: safe for now.".
+
+## 2026-06-02 03:15 BST — adventure log command
+
+Changed:
+- Added an engine-level `adventure_log` helper that formats recent turn messages as a numbered journal without mutating game state.
+- Added a new `emberfall log [save] --limit N` CLI command for reviewing recent events after multi-command or automated delves.
+- Added regression coverage for journal limiting, numbering, and non-mutation behavior.
+- Documented the new command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 15 passed in 0.10s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 83 --save /tmp/emberfall-log-cron.json && uv run emberfall move east /tmp/emberfall-log-cron.json && uv run emberfall log /tmp/emberfall-log-cron.json --limit 3` → created a deterministic save, advanced one turn, and printed a two-entry numbered journal ending with a monster stalking message.
