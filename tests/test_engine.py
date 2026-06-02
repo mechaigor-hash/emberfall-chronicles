@@ -69,6 +69,27 @@ def test_render_can_hide_distant_tiles_with_torch_fog():
     assert ">" not in "\n".join(map_lines)
 
 
+def test_render_can_apply_ansi_colors_without_mutation():
+    state = new_game(seed=9, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    state.monsters = state.monsters[:1]
+    state.monsters[0].position.x = 6
+    state.monsters[0].position.y = 5
+    state.treasures = [state.player.position.moved(Direction.NORTH)]
+    state.shrines = [state.player.position.moved(Direction.SOUTH)]
+    before = state.to_dict()
+
+    screen = render(state, color=True)
+
+    assert "\033[1;37m@\033[0m" in screen
+    assert "\033[31mM\033[0m" in screen
+    assert "\033[33m$\033[0m" in screen
+    assert "\033[32m+\033[0m" in screen
+    assert state.to_dict() == before
+
+
 def test_hero_sheet_summarizes_stats_and_inventory():
     state = new_game(seed=12)
     state.player.gold = 17

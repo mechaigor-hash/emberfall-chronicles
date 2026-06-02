@@ -251,3 +251,17 @@ Verification:
 - `uv run pytest` → 28 passed in 0.17s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 77 --save /tmp/emberfall-monster-route-cron.json && uv run emberfall route /tmp/emberfall-monster-route-cron.json --goal monster` → created a deterministic save and printed a monster route to a cinder wraith 13 steps away, first move south.
+
+## 2026-06-02 08:46 BST — ANSI color map renderer
+
+Changed:
+- Added an optional ANSI color palette to the engine renderer for Kalidor, walls, floors, monsters, treasure, shrines, and the ember gate.
+- Added `--color` rendering flags for `emberfall new`, `show`, `move`, `rest`, and `simulate` while preserving plain ASCII output by default.
+- Added regression coverage proving colored rendering emits expected ANSI glyphs without mutating game state.
+- Documented color rendering in the README quick start, gameplay notes, command list, and roadmap.
+
+Verification:
+- `uv run pytest` → 29 passed in 0.10s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 146 --save /tmp/emberfall-color-cron.json --color && uv run emberfall show /tmp/emberfall-color-cron.json --fog --color` → created a deterministic save and rendered the color-enabled full and torch-fog map views successfully.
+- Final post-log check: `uv run emberfall show /tmp/emberfall-color-cron.json --fog --color` → rendered the saved color-enabled torch-fog map successfully.

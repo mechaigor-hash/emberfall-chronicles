@@ -46,6 +46,7 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--save", type=Path, default=Path("saves/emberfall.json"))
     new.add_argument("--width", type=int, default=31)
     new.add_argument("--height", type=int, default=17)
+    new.add_argument("--color", action="store_true", help="render the initial map with ANSI colors")
 
     show = sub.add_parser("show", help="render a saved game")
     show.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -54,6 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="render only Kalidor's nearby torchlight instead of the full map",
     )
+    show.add_argument("--color", action="store_true", help="render the map with ANSI colors")
 
     status = sub.add_parser("status", help="show hero stats and inventory for a saved game")
     status.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -104,13 +106,16 @@ def build_parser() -> argparse.ArgumentParser:
     step = sub.add_parser("move", help="move north/south/east/west in a saved game")
     step.add_argument("direction", choices=[item.value for item in Direction])
     step.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+    step.add_argument("--color", action="store_true", help="render the updated map with ANSI colors")
 
     wait = sub.add_parser("rest", help="spend a turn recovering a little HP when safe")
     wait.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+    wait.add_argument("--color", action="store_true", help="render the updated map with ANSI colors")
 
     auto = sub.add_parser("simulate", help="run an automated delve")
     auto.add_argument("--seed", type=int, default=1)
     auto.add_argument("--steps", type=int, default=80)
+    auto.add_argument("--color", action="store_true", help="render the final map with ANSI colors")
 
     return parser
 
@@ -121,11 +126,11 @@ def main(argv: list[str] | None = None) -> int:
         state = new_game(seed=args.seed, width=args.width, height=args.height)
         save(state, args.save)
         print(BANNER)
-        print(render(state))
+        print(render(state, color=args.color))
         print(f"\nSaved to {args.save}")
         return 0
     if args.command == "show":
-        print(render(load(args.save), reveal_all=not args.fog))
+        print(render(load(args.save), reveal_all=not args.fog, color=args.color))
         return 0
     if args.command == "status":
         print(hero_sheet(load(args.save)))
@@ -170,18 +175,18 @@ def main(argv: list[str] | None = None) -> int:
         state = load(args.save)
         move(state, Direction(args.direction))
         save(state, args.save)
-        print(render(state))
+        print(render(state, color=args.color))
         return 0
     if args.command == "rest":
         state = load(args.save)
         rest(state)
         save(state, args.save)
-        print(render(state))
+        print(render(state, color=args.color))
         return 0
     if args.command == "simulate":
         state = simulate(seed=args.seed, steps=args.steps)
         print(BANNER)
-        print(render(state))
+        print(render(state, color=args.color))
         print("\nOutcome:", "victory" if state.won else "dead" if not state.player.alive else "still delving")
         return 0
     return 2

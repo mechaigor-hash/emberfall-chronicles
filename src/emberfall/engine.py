@@ -17,6 +17,16 @@ LOOT_EFFECTS = {
     "Oaken Charm": "The charm knits your wounds. +4 HP.",
     "Starfall Shard": "The shard burns like a tiny comet. +1 attack, +1 defense.",
 }
+ANSI_RESET = "\033[0m"
+ANSI_PALETTE = {
+    Tile.PLAYER.value: "\033[1;37m",
+    Tile.WALL.value: "\033[90m",
+    Tile.FLOOR.value: "\033[2;37m",
+    Tile.MONSTER.value: "\033[31m",
+    Tile.TREASURE.value: "\033[33m",
+    Tile.SHRINE.value: "\033[32m",
+    Tile.EXIT.value: "\033[35m",
+}
 
 
 class GameError(RuntimeError):
@@ -118,7 +128,7 @@ def rest(state: GameState) -> GameState:
     return state
 
 
-def render(state: GameState, reveal_all: bool = True) -> str:
+def render(state: GameState, reveal_all: bool = True, color: bool = False) -> str:
     grid = [list(row) for row in state.tiles]
     for treasure in state.treasures:
         grid[treasure.y][treasure.x] = Tile.TREASURE.value
@@ -130,6 +140,8 @@ def render(state: GameState, reveal_all: bool = True) -> str:
     grid[state.player.position.y][state.player.position.x] = state.player.glyph
     if not reveal_all:
         grid = _fog(grid, state.player.position)
+    if color:
+        grid = _colorize_grid(grid)
     stats = state.player.stats
     header = f"Emberfall Depth {state.depth} | HP {stats.hp}/{stats.max_hp} | ATK {stats.attack} DEF {stats.defense} | Gold {state.player.gold} XP {state.player.xp}"
     return header + "\n" + "\n".join("".join(row) for row in grid) + "\n" + "\n".join(state.log[-5:])
@@ -763,6 +775,17 @@ def _fog(grid: list[list[str]], origin: Position, radius: int = 5) -> list[list[
             if abs(x - origin.x) + abs(y - origin.y) > radius:
                 row[x] = " "
     return grid
+
+
+def _colorize_grid(grid: list[list[str]]) -> list[list[str]]:
+    return [[_colorize_tile(tile) for tile in row] for row in grid]
+
+
+def _colorize_tile(tile: str) -> str:
+    color = ANSI_PALETTE.get(tile)
+    if color is None:
+        return tile
+    return f"{color}{tile}{ANSI_RESET}"
 
 
 def _path_to_exit_or_goal(state: GameState) -> list[Direction]:

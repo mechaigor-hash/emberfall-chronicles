@@ -11,6 +11,7 @@ uv pip install -e . pytest ruff
 uv run emberfall new --seed 42
 uv run emberfall status
 uv run emberfall show --fog
+uv run emberfall show --color
 uv run emberfall score
 uv run emberfall inventory
 uv run emberfall look
@@ -34,7 +35,7 @@ No mandatory runtime dependencies: the game engine is standard-library Python.
 
 ## Gameplay
 
-You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health. The `show --fog` option renders only Kalidor's torchlit surroundings for a more suspenseful retro view, while plain `show` reveals the full saved map. The `inventory` command lists carried gear, gold, and the boon text for each known relic. The `score` command turns gold, XP, relics, defeated monsters, level, and fate into a deterministic score card for comparing delves. The `look` command scouts the four adjacent spaces without advancing the turn, helping you spot monsters, treasure, shrines, and the ember gate before moving. The `objectives` command gives a non-mutating quest readout with remaining treasures, shrines, monsters, and shortest-route hints. The `route` command prints a concrete shortest safe path toward any objective, the exit, treasure, a shrine, or the nearest monster without spending a turn. The `hint` command combines health, nearby fights, treasure, shrine, and exit routes into a single recommended next action. The `choices` command lists every immediate move with its consequence, including walls, open corridors, treasure, shrines, exits, and adjacent combat odds. The `threats` command ranks nearby monsters and calls out whether resting is currently safe. The `bestiary` command groups living monster types with HP, attack, defense, XP, gold, and nearest-distance warnings for combat planning. The `combat` command estimates adjacent fight odds, showing damage both ways, swings to defeat an enemy, and the survival margin before committing to an attack. The `log` command replays recent turn messages as a numbered journal, which is useful after automated or multi-command delves. The `legend` command explains every ASCII map glyph alongside current monster, treasure, shrine, and hero counts for quick orientation. When the corridors are quiet, the `rest` command lets Kalidor spend a turn recovering a little HP, but nearby monsters interrupt the action and still take their turn.
+You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health. The `show --fog` option renders only Kalidor's torchlit surroundings for a more suspenseful retro view, `--color` adds ANSI tinting for walls, monsters, treasure, shrines, exits, and Kalidor, while plain `show` reveals the full saved map. The `inventory` command lists carried gear, gold, and the boon text for each known relic. The `score` command turns gold, XP, relics, defeated monsters, level, and fate into a deterministic score card for comparing delves. The `look` command scouts the four adjacent spaces without advancing the turn, helping you spot monsters, treasure, shrines, and the ember gate before moving. The `objectives` command gives a non-mutating quest readout with remaining treasures, shrines, monsters, and shortest-route hints. The `route` command prints a concrete shortest safe path toward any objective, the exit, treasure, a shrine, or the nearest monster without spending a turn. The `hint` command combines health, nearby fights, treasure, shrine, and exit routes into a single recommended next action. The `choices` command lists every immediate move with its consequence, including walls, open corridors, treasure, shrines, exits, and adjacent combat odds. The `threats` command ranks nearby monsters and calls out whether resting is currently safe. The `bestiary` command groups living monster types with HP, attack, defense, XP, gold, and nearest-distance warnings for combat planning. The `combat` command estimates adjacent fight odds, showing damage both ways, swings to defeat an enemy, and the survival margin before committing to an attack. The `log` command replays recent turn messages as a numbered journal, which is useful after automated or multi-command delves. The `legend` command explains every ASCII map glyph alongside current monster, treasure, shrine, and hero counts for quick orientation. When the corridors are quiet, the `rest` command lets Kalidor spend a turn recovering a little HP, but nearby monsters interrupt the action and still take their turn.
 
 Legend:
 
@@ -54,6 +55,7 @@ Legend:
 emberfall new --seed 123 --save saves/run.json
 emberfall show saves/run.json
 emberfall show saves/run.json --fog
+emberfall show saves/run.json --color
 emberfall status saves/run.json
 emberfall score saves/run.json
 emberfall inventory saves/run.json
@@ -85,7 +87,7 @@ This repo is intentionally built to be iterated by agents overnight. Near-term i
 - multi-floor campaign mode
 - curses or Textual UI
 - procedural town / quest generator
-- sprite-like ANSI color renderer
+- atmospheric sound/event log flavor
 
 ## Test
 
