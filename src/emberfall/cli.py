@@ -7,6 +7,7 @@ from pathlib import Path
 from emberfall.engine import (
     adventure_log,
     bestiary,
+    combat_advice,
     hero_sheet,
     inventory_report,
     legend,
@@ -71,6 +72,9 @@ def build_parser() -> argparse.ArgumentParser:
     beasts = sub.add_parser("bestiary", help="summarize living monster types and rewards")
     beasts.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
+    combat = sub.add_parser("combat", help="estimate adjacent fight odds without advancing time")
+    combat.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
     route = sub.add_parser("route", help="plot shortest safe route to an objective")
     route.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
     route.add_argument(
@@ -129,6 +133,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "bestiary":
         print(bestiary(load(args.save)))
+        return 0
+    if args.command == "combat":
+        print(combat_advice(load(args.save)))
         return 0
     if args.command == "route":
         print(route_plan(load(args.save), goal=args.goal))

@@ -1,6 +1,7 @@
 from emberfall.engine import (
     adventure_log,
     bestiary,
+    combat_advice,
     hero_sheet,
     inventory_report,
     legend,
@@ -223,6 +224,51 @@ def test_bestiary_groups_monsters_with_stats_rewards_and_distance_without_mutati
     assert "ash goblin x2: HP 5-9, ATK 3-5, DEF 1-2, XP 4-8, gold 2-7" in report
     assert "nearest 1 steps (adjacent and ready to strike)" in report
     assert "rust knight x1: HP 11, ATK 6, DEF 3, XP 10, gold 4" in report
+    assert state.to_dict() == before
+
+
+def test_combat_advice_estimates_adjacent_fight_without_mutation():
+    state = new_game(seed=30, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    state.player.stats.hp = 12
+    monster.name = "ash goblin"
+    monster.position.x = 6
+    monster.position.y = 5
+    monster.stats.hp = 7
+    monster.stats.max_hp = 7
+    monster.stats.attack = 4
+    monster.stats.defense = 1
+    before = state.to_dict()
+
+    report = combat_advice(state)
+
+    assert "Kalidor weighs the next exchange" in report
+    assert "east: ash goblin at 7/7 HP" in report
+    assert "you hit for 5, it hits for 2" in report
+    assert "defeat in 2 swings, survival margin 6 enemy swings (favorable)" in report
+    assert state.to_dict() == before
+
+
+def test_combat_advice_points_to_nearest_threat_when_not_adjacent():
+    state = new_game(seed=31, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    monster.name = "rust knight"
+    monster.position.x = 9
+    monster.position.y = 5
+    before = state.to_dict()
+
+    report = combat_advice(state)
+
+    assert "No adjacent enemy. Nearest: rust knight, 4 steps away" in report
+    assert "Tactical hint" in report
     assert state.to_dict() == before
 
 

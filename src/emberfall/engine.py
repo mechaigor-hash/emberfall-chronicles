@@ -273,6 +273,43 @@ def bestiary(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def combat_advice(state: GameState) -> str:
+    """Estimate adjacent combat odds without mutating the game state."""
+    lines = ["Kalidor weighs the next exchange:"]
+    adjacent = [
+        (direction, monster_at(state, state.player.position.moved(direction)))
+        for direction in Direction
+    ]
+    targets = [(direction, monster) for direction, monster in adjacent if monster]
+    if not targets:
+        living = [monster for monster in state.monsters if monster.alive]
+        if not living:
+            lines.append("- No living monsters remain to challenge your blade.")
+        else:
+            nearest = min(living, key=lambda monster: (_monster_distance(state, monster), monster.name))
+            distance = _monster_distance(state, nearest)
+            lines.append(
+                f"- No adjacent enemy. Nearest: {nearest.name}, "
+                f"{distance} steps away ({_threat_warning(distance)})."
+            )
+        lines.append("- Tactical hint: use route, look, or rest before committing to a fight.")
+        return "\n".join(lines)
+
+    player = state.player
+    for direction, monster in targets:
+        player_damage = _damage(player, monster)
+        monster_damage = _damage(monster, player)
+        hero_swings = _turns_to_defeat(monster.stats.hp, player_damage)
+        enemy_swings = _turns_to_defeat(player.stats.hp, monster_damage)
+        outlook = "favorable" if hero_swings <= enemy_swings else "dangerous"
+        lines.append(
+            f"- {direction.value}: {monster.name} at {monster.stats.hp}/{monster.stats.max_hp} HP — "
+            f"you hit for {player_damage}, it hits for {monster_damage}; "
+            f"defeat in {hero_swings} swings, survival margin {enemy_swings} enemy swings ({outlook})."
+        )
+    return "\n".join(lines)
+
+
 def route_plan(state: GameState, goal: str = "any") -> str:
     """Give a shortest safe route toward the requested objective without advancing time."""
     goal = goal.lower()
@@ -469,8 +506,16 @@ def _is_wall(state: GameState, position: Position) -> bool:
     return position.x < 0 or position.y < 0 or position.x >= state.width or position.y >= state.height or _tile_at(state, position) == Tile.WALL
 
 
+def _damage(attacker: Entity, defender: Entity) -> int:
+    return max(1, attacker.stats.attack - defender.stats.defense)
+
+
+def _turns_to_defeat(hp: int, damage: int) -> int:
+    return max(1, (hp + damage - 1) // damage)
+
+
 def _attack(attacker: Entity, defender: Entity, state: GameState) -> None:
-    damage = max(1, attacker.stats.attack - defender.stats.defense)
+    damage = _damage(attacker, defender)
     defender.stats.hp = max(0, defender.stats.hp - damage)
     state.log.append(f"{attacker.name} hits {defender.name} for {damage}.")
 

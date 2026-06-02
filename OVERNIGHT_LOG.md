@@ -173,3 +173,16 @@ Verification:
 - `uv run pytest` → 19 passed in 0.08s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 42 --save <tmp>/route.json && uv run emberfall route <tmp>/route.json --goal treasure` → created a deterministic save and printed an 18-step route to a treasure cache, first move south.
+
+## 2026-06-02 05:26 BST — combat odds command
+
+Changed:
+- Added an engine-level `combat_advice` helper that estimates adjacent fight odds without mutating game state.
+- The report shows damage dealt both ways, swings needed to defeat adjacent enemies, enemy survival margin, and a favorable/dangerous outlook.
+- Added a new `emberfall combat [save]` CLI command plus README quick-start, gameplay, and command-list documentation.
+- Added regression coverage for adjacent combat math, nearest-threat fallback, and non-mutation behavior.
+
+Verification:
+- `uv run pytest` → 21 passed in 0.09s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 117 --save <tmp>/combat.json && uv run emberfall combat <tmp>/combat.json` → created a deterministic save and printed the combat-advice report with no adjacent enemy, nearest ash goblin 15 steps away, and a tactical hint.
