@@ -83,3 +83,16 @@ Verification:
 - `uv run pytest` → 11 passed in 0.07s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 44 --save /tmp/emberfall-look-cron.json && uv run emberfall look /tmp/emberfall-look-cron.json` → created a deterministic save and printed adjacent-space scouting output: north/west walls and south/east open corridors.
+
+## 2026-06-02 01:37 BST — objectives route summary
+
+Changed:
+- Added an engine-level `objectives` helper that summarizes the ember gate route, remaining treasure and shrine counts, living monsters, and current fate without mutating game state.
+- Added a new `emberfall objectives [save]` CLI command for quick quest guidance between turns.
+- Reused the simulation BFS pathing through a shared route helper so objective hints use the same passability rules as automated delves.
+- Added regression coverage for objective summaries and documented the command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 12 passed in 0.08s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 52 --save /tmp/emberfall-objectives-cron.json && uv run emberfall objectives /tmp/emberfall-objectives-cron.json` → created a deterministic save and printed objective guidance: ember gate 42 steps away, treasures 13 steps away, shrines 14 steps away, and 5 monsters alive.

@@ -1,4 +1,4 @@
-from emberfall.engine import hero_sheet, load, look, move, new_game, render, rest, save, simulate
+from emberfall.engine import hero_sheet, load, look, move, new_game, objectives, render, rest, save, simulate
 from emberfall.models import Direction
 
 
@@ -61,6 +61,35 @@ def test_look_describes_adjacent_features_without_spending_a_turn():
     assert "east: the" in report
     assert "wounded to" in report
     assert "west: an open corridor" in report
+    assert state.to_dict() == before
+
+
+def test_objectives_summarize_routes_and_remaining_goals_without_mutation():
+    state = new_game(seed=22, width=11, height=11)
+    state.tiles = [
+        "###########",
+        "#@..$....>#",
+        *["#.........#" for _ in range(8)],
+        "###########",
+    ]
+    state.player.position.x = 1
+    state.player.position.y = 1
+    state.monsters = state.monsters[:2]
+    state.monsters[0].position.x = 5
+    state.monsters[0].position.y = 5
+    state.monsters[1].position.x = 7
+    state.monsters[1].position.y = 7
+    state.treasures = [state.player.position.moved(Direction.EAST).moved(Direction.EAST).moved(Direction.EAST)]
+    state.shrines.clear()
+    before = state.to_dict()
+
+    report = objectives(state)
+
+    assert "Ember gate: 8 steps, first move east" in report
+    assert "Treasures remaining: 1 (3 steps, first move east)" in report
+    assert "Healing shrines remaining: 0 (none left)" in report
+    assert "Monsters alive: 2" in report
+    assert "still" not in report
     assert state.to_dict() == before
 
 

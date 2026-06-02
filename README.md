@@ -10,6 +10,7 @@ uv pip install -e . pytest ruff
 uv run emberfall new --seed 42
 uv run emberfall status
 uv run emberfall look
+uv run emberfall objectives
 uv run emberfall move east
 uv run emberfall simulate --seed 7 --steps 120
 ```
@@ -18,7 +19,7 @@ No mandatory runtime dependencies: the game engine is standard-library Python.
 
 ## Gameplay
 
-You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health. The `look` command scouts the four adjacent spaces without advancing the turn, helping you spot monsters, treasure, shrines, and the ember gate before moving. When the corridors are quiet, the `rest` command lets Kalidor spend a turn recovering a little HP, but nearby monsters interrupt the respite.
+You are **Kalidor**, a blade-bearing wanderer trapped under Emberfall Keep. Explore the maze, fight monsters, find relics, heal at shrines, and reach the ember gate (`>`). Monsters now sense nearby footsteps and stalk toward you through open corridors, so lingering in one place is dangerous. Relics are more than trophies: each treasure grants a small deterministic stat boon such as sharper attacks, sturdier defense, or restored health. The `look` command scouts the four adjacent spaces without advancing the turn, helping you spot monsters, treasure, shrines, and the ember gate before moving. The `objectives` command gives a non-mutating quest readout with remaining treasures, shrines, monsters, and shortest-route hints. When the corridors are quiet, the `rest` command lets Kalidor spend a turn recovering a little HP, but nearby monsters interrupt the respite.
 
 Legend:
 
@@ -39,6 +40,7 @@ emberfall new --seed 123 --save saves/run.json
 emberfall show saves/run.json
 emberfall status saves/run.json
 emberfall look saves/run.json
+emberfall objectives saves/run.json
 emberfall move north saves/run.json
 emberfall move south saves/run.json
 emberfall move east saves/run.json

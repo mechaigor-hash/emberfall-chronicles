@@ -163,6 +163,25 @@ def look(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def objectives(state: GameState) -> str:
+    """Summarize remaining dungeon goals without spending a turn."""
+    lines = ["Kalidor checks the quest etched into his lantern glass:"]
+    exit_positions = [
+        Position(x, y) for y, row in enumerate(state.tiles) for x, ch in enumerate(row) if ch == Tile.EXIT
+    ]
+    lines.append(f"- Ember gate: {_route_summary(state, exit_positions)}")
+    lines.append(f"- Treasures remaining: {len(state.treasures)} ({_route_summary(state, state.treasures)})")
+    lines.append(f"- Healing shrines remaining: {len(state.shrines)} ({_route_summary(state, state.shrines)})")
+    lines.append(f"- Monsters alive: {sum(1 for monster in state.monsters if monster.alive)}")
+    if state.won:
+        lines.append("- Fate: the ember gate has already opened.")
+    elif not state.player.alive:
+        lines.append("- Fate: Kalidor has fallen beneath the keep.")
+    else:
+        lines.append("- Fate: find the gate before the keep wakes fully.")
+    return "\n".join(lines)
+
+
 def save(state: GameState, path: str | Path) -> Path:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -205,6 +224,17 @@ def _describe_position(state: GameState, position: Position) -> str:
     if _tile_at(state, position) == Tile.EXIT:
         return "the ember gate"
     return "an open corridor"
+
+
+def _route_summary(state: GameState, goals: list[Position]) -> str:
+    if not goals:
+        return "none left"
+    if state.player.position in goals:
+        return "here"
+    path = _path_to_positions(state, goals)
+    if not path:
+        return "unreachable from here"
+    return f"{len(path)} steps, first move {path[0].value}"
 
 
 def _danger_nearby(state: GameState, radius: int = 2) -> bool:
@@ -355,6 +385,10 @@ def _fog(grid: list[list[str]], origin: Position, radius: int = 5) -> list[list[
 def _path_to_exit_or_goal(state: GameState) -> list[Direction]:
     goals = [Position(x, y) for y, row in enumerate(state.tiles) for x, ch in enumerate(row) if ch == Tile.EXIT]
     goals.extend(state.treasures)
+    return _path_to_positions(state, goals)
+
+
+def _path_to_positions(state: GameState, goals: list[Position]) -> list[Direction]:
     queue: deque[tuple[Position, list[Direction]]] = deque([(state.player.position, [])])
     seen = {(state.player.position.x, state.player.position.y)}
     while queue:
