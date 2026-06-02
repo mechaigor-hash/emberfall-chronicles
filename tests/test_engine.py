@@ -14,6 +14,7 @@ from emberfall.engine import (
     rest,
     route_plan,
     save,
+    score_report,
     simulate,
     tactical_hint,
     threat_report,
@@ -61,6 +62,29 @@ def test_inventory_report_lists_gold_gear_and_relic_boons():
     assert "27 gold" in report
     assert "Weathered Blade: A dependable companion" in report
     assert "Ember Ring: The ring flares around your blade. +1 attack." in report
+
+
+def test_score_report_summarizes_progress_without_mutation():
+    state = new_game(seed=14)
+    state.player.gold = 13
+    state.player.xp = 8
+    state.player.level = 2
+    state.player.inventory.extend(["Ember Ring", "Oaken Charm"])
+    state.monsters = state.monsters[:3]
+    state.monsters[0].stats.hp = 0
+    state.treasures = state.treasures[:1]
+    state.shrines.clear()
+    before = state.to_dict()
+
+    report = score_report(state)
+
+    assert "Emberfall score card" in report
+    assert "Score: 109" in report
+    assert "Fate bonus: +0 while the delve continues" in report
+    assert "Spoils: 13 gold, 8 XP, 2 relics" in report
+    assert "Monsters: 1 defeated, 2 still hunting" in report
+    assert "Objectives left: 1 treasures, 0 shrines" in report
+    assert state.to_dict() == before
 
 
 def test_move_into_wall_logs_message():

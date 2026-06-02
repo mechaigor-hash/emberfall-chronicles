@@ -154,6 +154,24 @@ def hero_sheet(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def score_report(state: GameState) -> str:
+    """Summarize delve progress as a deterministic score card."""
+    living_monsters = sum(1 for monster in state.monsters if monster.alive)
+    defeated_monsters = len(state.monsters) - living_monsters
+    collected_treasures = sum(1 for item in state.player.inventory if item in LOOT_EFFECTS)
+    score = _score(state)
+    lines = [
+        "Emberfall score card:",
+        f"- Score: {score}",
+        f"- Fate bonus: {_fate_bonus_text(state)}",
+        f"- Hero: level {state.player.level}, {state.player.stats.hp}/{state.player.stats.max_hp} HP",
+        f"- Spoils: {state.player.gold} gold, {state.player.xp} XP, {collected_treasures} relics",
+        f"- Monsters: {defeated_monsters} defeated, {living_monsters} still hunting",
+        f"- Objectives left: {len(state.treasures)} treasures, {len(state.shrines)} shrines",
+    ]
+    return "\n".join(lines)
+
+
 def inventory_report(state: GameState) -> str:
     """Describe carried relics and their known boons for quick planning."""
     lines = [f"Kalidor's pack holds {state.player.gold} gold and:"]
@@ -501,6 +519,28 @@ def _range_text(values: list[int]) -> str:
     if low == high:
         return str(low)
     return f"{low}-{high}"
+
+
+def _score(state: GameState) -> int:
+    defeated_monsters = sum(1 for monster in state.monsters if not monster.alive)
+    relics = sum(1 for item in state.player.inventory if item in LOOT_EFFECTS)
+    fate_bonus = 100 if state.won else -25 if not state.player.alive else 0
+    return (
+        state.player.gold
+        + state.player.xp * 2
+        + state.player.level * 15
+        + relics * 20
+        + defeated_monsters * 10
+        + fate_bonus
+    )
+
+
+def _fate_bonus_text(state: GameState) -> str:
+    if state.won:
+        return "+100 for opening the ember gate"
+    if not state.player.alive:
+        return "-25 for falling beneath the keep"
+    return "+0 while the delve continues"
 
 
 def _route_goals(state: GameState, goal: str) -> list[Position]:

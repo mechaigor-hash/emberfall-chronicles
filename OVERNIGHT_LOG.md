@@ -199,3 +199,16 @@ Verification:
 - `uv run pytest` → 24 passed in 0.09s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 128 --save <tmp>/hint.json && uv run emberfall hint <tmp>/hint.json` → created a deterministic save and printed "Recommended action: move south toward treasure for relic boons.".
+
+## 2026-06-02 06:33 BST — score card command
+
+Changed:
+- Added an engine-level `score_report` helper that converts gold, XP, level, relics, defeated monsters, and fate into a deterministic delve score.
+- Added a new `emberfall score [save]` CLI command for comparing runs without advancing turns.
+- Added regression coverage proving the score card summarizes progress and does not mutate game state.
+- Documented the score command in the README quick start, gameplay notes, and command list.
+
+Verification:
+- `uv run pytest` → 25 passed in 0.15s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 44 --save /tmp/emberfall-score.json && uv run emberfall score /tmp/emberfall-score.json` → created a deterministic save and printed score 15 with 0 gold, 0 XP, 0 relics, and 5 monsters still hunting.

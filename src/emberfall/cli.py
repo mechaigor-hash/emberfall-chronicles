@@ -20,6 +20,7 @@ from emberfall.engine import (
     rest,
     route_plan,
     save,
+    score_report,
     simulate,
     tactical_hint,
     threat_report,
@@ -50,6 +51,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     status = sub.add_parser("status", help="show hero stats and inventory for a saved game")
     status.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
+    score = sub.add_parser("score", help="show a deterministic score card for a saved game")
+    score.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
     pack = sub.add_parser("inventory", help="list carried gear, relic boons, and gold")
     pack.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -116,6 +120,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "status":
         print(hero_sheet(load(args.save)))
+        return 0
+    if args.command == "score":
+        print(score_report(load(args.save)))
         return 0
     if args.command == "inventory":
         print(inventory_report(load(args.save)))
