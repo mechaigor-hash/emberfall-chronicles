@@ -5,7 +5,8 @@ A Python-based retro fantasy RPG: tiny ASCII dungeons, turn-based combat, stalki
 ## Quick start
 
 ```bash
-uv venv
+# Only create the venv if it does not already exist.
+[ -d .venv ] || uv venv
 uv pip install -e . pytest ruff
 uv run emberfall new --seed 42
 uv run emberfall status
@@ -26,6 +27,8 @@ uv run emberfall route --goal monster
 uv run emberfall move east
 uv run emberfall simulate --seed 7 --steps 120
 ```
+
+If `uv venv` says `.venv` already exists, that is not a project failure. Skip venv creation and continue with `uv pip install -e . pytest ruff`.
 
 No mandatory runtime dependencies: the game engine is standard-library Python.
 
