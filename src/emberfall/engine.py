@@ -310,6 +310,78 @@ def combat_advice(state: GameState) -> str:
     return "\n".join(lines)
 
 
+def tactical_hint(state: GameState) -> str:
+    """Recommend one safe next action without mutating the game state."""
+    lines = ["Kalidor considers his next move:"]
+    if state.won:
+        lines.append("- The ember gate is open. No further action is needed on this depth.")
+        return "\n".join(lines)
+    if not state.player.alive:
+        lines.append("- The lantern is dark. Start a new delve to try again.")
+        return "\n".join(lines)
+
+    adjacent = [
+        (direction, monster_at(state, state.player.position.moved(direction)))
+        for direction in Direction
+    ]
+    targets = [(direction, monster) for direction, monster in adjacent if monster]
+    if targets:
+        direction, monster = min(
+            targets,
+            key=lambda item: (
+                _turns_to_defeat(item[1].stats.hp, _damage(state.player, item[1])),
+                item[1].name,
+            ),
+        )
+        player_damage = _damage(state.player, monster)
+        monster_damage = _damage(monster, state.player)
+        hero_swings = _turns_to_defeat(monster.stats.hp, player_damage)
+        enemy_swings = _turns_to_defeat(state.player.stats.hp, monster_damage)
+        if hero_swings <= enemy_swings:
+            lines.append(
+                f"- Recommended action: move {direction.value} to strike the {monster.name}; "
+                f"expected win in {hero_swings} swings."
+            )
+        else:
+            shrine_path = _path_to_positions(state, state.shrines)
+            if shrine_path:
+                lines.append(
+                    f"- Recommended action: avoid this fight and move {shrine_path[0].value} "
+                    "toward a healing shrine."
+                )
+            else:
+                lines.append(
+                    f"- Recommended action: desperate attack {direction.value}; no safe shrine route is visible."
+                )
+        return "\n".join(lines)
+
+    if state.player.stats.hp <= state.player.stats.max_hp // 2:
+        if not _danger_nearby(state):
+            lines.append("- Recommended action: rest; HP is low and no monster is close enough to interrupt.")
+            return "\n".join(lines)
+        shrine_path = _path_to_positions(state, state.shrines)
+        if shrine_path:
+            lines.append(
+                f"- Recommended action: move {shrine_path[0].value} toward a healing shrine; HP is low."
+            )
+            return "\n".join(lines)
+
+    if state.treasures:
+        treasure_path = _path_to_positions(state, state.treasures)
+        if treasure_path:
+            lines.append(
+                f"- Recommended action: move {treasure_path[0].value} toward treasure for relic boons."
+            )
+            return "\n".join(lines)
+
+    exit_path = _path_to_positions(state, _exit_positions(state))
+    if exit_path:
+        lines.append(f"- Recommended action: move {exit_path[0].value} toward the ember gate.")
+    else:
+        lines.append("- Recommended action: look, then choose a corridor; no safe route is visible.")
+    return "\n".join(lines)
+
+
 def route_plan(state: GameState, goal: str = "any") -> str:
     """Give a shortest safe route toward the requested objective without advancing time."""
     goal = goal.lower()
@@ -432,9 +504,7 @@ def _range_text(values: list[int]) -> str:
 
 
 def _route_goals(state: GameState, goal: str) -> list[Position]:
-    exits = [
-        Position(x, y) for y, row in enumerate(state.tiles) for x, ch in enumerate(row) if ch == Tile.EXIT
-    ]
+    exits = _exit_positions(state)
     if goal == "any":
         return [*state.treasures, *state.shrines, *exits]
     if goal == "exit":
@@ -444,6 +514,12 @@ def _route_goals(state: GameState, goal: str) -> list[Position]:
     if goal == "shrine":
         return list(state.shrines)
     return []
+
+
+def _exit_positions(state: GameState) -> list[Position]:
+    return [
+        Position(x, y) for y, row in enumerate(state.tiles) for x, ch in enumerate(row) if ch == Tile.EXIT
+    ]
 
 
 def _follow_path(start: Position, path: list[Direction]) -> Position:

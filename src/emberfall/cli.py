@@ -21,6 +21,7 @@ from emberfall.engine import (
     route_plan,
     save,
     simulate,
+    tactical_hint,
     threat_report,
 )
 from emberfall.models import Direction
@@ -74,6 +75,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     combat = sub.add_parser("combat", help="estimate adjacent fight odds without advancing time")
     combat.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
+
+    hint = sub.add_parser("hint", help="recommend one safe next action without advancing time")
+    hint.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
 
     route = sub.add_parser("route", help="plot shortest safe route to an objective")
     route.add_argument("save", type=Path, nargs="?", default=Path("saves/emberfall.json"))
@@ -136,6 +140,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "combat":
         print(combat_advice(load(args.save)))
+        return 0
+    if args.command == "hint":
+        print(tactical_hint(load(args.save)))
         return 0
     if args.command == "route":
         print(route_plan(load(args.save), goal=args.goal))

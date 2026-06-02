@@ -186,3 +186,16 @@ Verification:
 - `uv run pytest` → 21 passed in 0.09s.
 - `uv run ruff check src tests` → All checks passed.
 - `uv run emberfall new --seed 117 --save <tmp>/combat.json && uv run emberfall combat <tmp>/combat.json` → created a deterministic save and printed the combat-advice report with no adjacent enemy, nearest ash goblin 15 steps away, and a tactical hint.
+
+## 2026-06-02 06:00 BST — tactical hint command
+
+Changed:
+- Added an engine-level `tactical_hint` helper that recommends one next action without mutating game state.
+- The hint logic considers completed/failed runs, adjacent combat odds, low-HP resting, shrine routes, treasure routes, and the ember gate.
+- Added a new `emberfall hint [save]` CLI command and documented it in the README quick start, gameplay notes, and command list.
+- Added regression coverage for treasure-route, safe-rest, and winnable-adjacent-attack recommendations.
+
+Verification:
+- `uv run pytest` → 24 passed in 0.09s.
+- `uv run ruff check src tests` → All checks passed.
+- `uv run emberfall new --seed 128 --save <tmp>/hint.json && uv run emberfall hint <tmp>/hint.json` → created a deterministic save and printed "Recommended action: move south toward treasure for relic boons.".

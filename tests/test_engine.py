@@ -15,6 +15,7 @@ from emberfall.engine import (
     route_plan,
     save,
     simulate,
+    tactical_hint,
     threat_report,
 )
 from emberfall.models import Direction
@@ -269,6 +270,64 @@ def test_combat_advice_points_to_nearest_threat_when_not_adjacent():
 
     assert "No adjacent enemy. Nearest: rust knight, 4 steps away" in report
     assert "Tactical hint" in report
+    assert state.to_dict() == before
+
+
+def test_tactical_hint_recommends_treasure_route_without_mutation():
+    state = new_game(seed=32, width=11, height=11)
+    state.tiles = [
+        "###########",
+        "#........>#",
+        *["#.........#" for _ in range(8)],
+        "###########",
+    ]
+    state.player.position.x = 1
+    state.player.position.y = 1
+    state.monsters.clear()
+    state.treasures = [state.player.position.moved(Direction.EAST).moved(Direction.EAST)]
+    state.shrines.clear()
+    before = state.to_dict()
+
+    report = tactical_hint(state)
+
+    assert "Kalidor considers his next move" in report
+    assert "Recommended action: move east toward treasure for relic boons" in report
+    assert state.to_dict() == before
+
+
+def test_tactical_hint_prefers_rest_when_hurt_and_safe():
+    state = new_game(seed=33, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    state.monsters.clear()
+    state.player.stats.hp = 10
+    before = state.to_dict()
+
+    report = tactical_hint(state)
+
+    assert "Recommended action: rest" in report
+    assert "HP is low" in report
+    assert state.to_dict() == before
+
+
+def test_tactical_hint_recommends_winnable_adjacent_attack():
+    state = new_game(seed=34, width=11, height=11)
+    state.tiles = ["#" * 11, *["#.........#" for _ in range(9)], "#" * 11]
+    monster = state.monsters[0]
+    state.monsters = [monster]
+    state.player.position.x = 5
+    state.player.position.y = 5
+    monster.name = "ash goblin"
+    monster.position.x = 6
+    monster.position.y = 5
+    monster.stats.hp = 5
+    monster.stats.defense = 1
+    monster.stats.attack = 3
+    before = state.to_dict()
+
+    report = tactical_hint(state)
+
+    assert "Recommended action: move east to strike the ash goblin" in report
+    assert "expected win in 1 swings" in report
     assert state.to_dict() == before
 
 
